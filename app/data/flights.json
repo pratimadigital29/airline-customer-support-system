@@ -1,0 +1,10 @@
+[
+  {"flight_no": "AI202", "airline": "Air India", "origin": "DEL", "destination": "LHR", "departure": "2026-09-11 06:40", "arrival": "2026-09-11 11:15", "status": "On time", "gate": "B12", "terminal": "T3"},
+  {"flight_no": "AI203", "airline": "Air India", "origin": "LHR", "destination": "DEL", "departure": "2026-09-11 13:30", "arrival": "2026-09-12 02:10", "status": "On time", "gate": "A4", "terminal": "T2"},
+  {"flight_no": "6E234", "airline": "IndiGo", "origin": "DEL", "destination": "BOM", "departure": "2026-09-10 18:05", "arrival": "2026-09-10 20:20", "status": "Delayed", "gate": "C7", "terminal": "T1"},
+  {"flight_no": "BA249", "airline": "British Airways", "origin": "LHR", "destination": "BOM", "departure": "2026-09-10 21:45", "arrival": "2026-09-11 11:30", "status": "On time", "gate": "D22", "terminal": "T5"},
+  {"flight_no": "EK512", "airline": "Emirates", "origin": "DEL", "destination": "DXB", "departure": "2026-09-10 22:10", "arrival": "2026-09-11 00:40", "status": "Boarding", "gate": "E3", "terminal": "T3"},
+  {"flight_no": "UK978", "airline": "Vistara", "origin": "BOM", "destination": "LHR", "departure": "2026-09-11 02:30", "arrival": "2026-09-11 07:05", "status": "On time", "gate": "F9", "terminal": "T2"},
+  {"flight_no": "AI860", "airline": "Air India", "origin": "BOM", "destination": "SIN", "departure": "2026-09-11 00:55", "arrival": "2026-09-11 08:35", "status": "Cancelled", "gate": "-", "terminal": "T2"},
+  {"flight_no": "6E118", "airline": "IndiGo", "origin": "BLR", "destination": "DEL", "departure": "2026-09-10 19:40", "arrival": "2026-09-10 22:25", "status": "On time", "gate": "A11", "terminal": "T1"}
+]

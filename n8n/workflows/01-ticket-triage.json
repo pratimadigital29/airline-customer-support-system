@@ -1,0 +1,103 @@
+{
+  "name": "01 - Airline Ticket Triage",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "new-ticket",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "a1b2c3d4-webhook",
+      "name": "New Ticket Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "new-ticket-hook"
+    },
+    {
+      "parameters": {
+        "jsCode": "const t = $input.first().json;\nconst urgent = t.priority === 'urgent' || (t.intent === 'complaint' && t.sentiment === 'negative');\nreturn [{ json: { ...t, needs_human: urgent } }];"
+      },
+      "id": "a1b2c3d4-code",
+      "name": "Evaluate Priority",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {"caseSensitive": true, "leftValue": "", "typeValidation": "strict"},
+          "conditions": [
+            {"id": "cond-urgent", "leftValue": "={{ $json.needs_human }}", "rightValue": true, "operator": {"type": "boolean", "operation": "true"}}
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a1b2c3d4-if",
+      "name": "Needs Human?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.API_BASE_URL }}/webhooks/n8n/ticket-event",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ ticket_id: $json.ticket_id, action: 'escalate', assignee: 'duty-manager', note: 'Auto-escalated by n8n triage workflow' }) }}",
+        "options": {"timeout": 5000}
+      },
+      "id": "a1b2c3d4-escalate",
+      "name": "Escalate Ticket",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [900, 220]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.API_BASE_URL }}/webhooks/n8n/ticket-event",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ ticket_id: $json.ticket_id, action: 'assign', assignee: 'support-agent', note: 'Auto-assigned by n8n triage workflow' }) }}",
+        "options": {"timeout": 5000}
+      },
+      "id": "a1b2c3d4-assign",
+      "name": "Auto Assign",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [900, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, ticket_id: $('New Ticket Webhook').first().json.ticket_id }) }}",
+        "options": {}
+      },
+      "id": "a1b2c3d4-respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1120, 300]
+    }
+  ],
+  "connections": {
+    "New Ticket Webhook": {"main": [[{"node": "Evaluate Priority", "type": "main", "index": 0}]]},
+    "Evaluate Priority": {"main": [[{"node": "Needs Human?", "type": "main", "index": 0}]]},
+    "Needs Human?": {
+      "main": [
+        [{"node": "Escalate Ticket", "type": "main", "index": 0}],
+        [{"node": "Auto Assign", "type": "main", "index": 0}]
+      ]
+    },
+    "Escalate Ticket": {"main": [[{"node": "Respond", "type": "main", "index": 0}]]},
+    "Auto Assign": {"main": [[{"node": "Respond", "type": "main", "index": 0}]]}
+  },
+  "settings": {"executionOrder": "v1"},
+  "staticData": null,
+  "pinData": {}
+}

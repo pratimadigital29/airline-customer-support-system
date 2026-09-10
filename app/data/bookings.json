@@ -1,0 +1,7 @@
+[
+  {"pnr": "ABC123", "passenger": "Aarav Sharma", "flight_no": "AI202", "date": "2026-09-11", "seat": "24A", "cabin": "Economy", "status": "Confirmed"},
+  {"pnr": "XYZ789", "passenger": "Diya Patel", "flight_no": "6E234", "date": "2026-09-10", "seat": "12F", "cabin": "Economy", "status": "Confirmed"},
+  {"pnr": "QWE456", "passenger": "John Smith", "flight_no": "BA249", "date": "2026-09-10", "seat": "3A", "cabin": "Business", "status": "Confirmed"},
+  {"pnr": "RTY321", "passenger": "Priya Nair", "flight_no": "AI860", "date": "2026-09-11", "seat": "31C", "cabin": "Economy", "status": "Disrupted — flight cancelled"},
+  {"pnr": "MNB654", "passenger": "Kabir Rao", "flight_no": "EK512", "date": "2026-09-10", "seat": "18D", "cabin": "Economy", "status": "Checked in"}
+]

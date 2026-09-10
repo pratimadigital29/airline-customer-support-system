@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AeroServe — Airline Customer Support</title>
+<style>
+  :root { --bg:#0b1020; --card:#151d33; --line:#263154; --text:#e8ecf8; --muted:#9aa6c7;
+          --accent:#5b8cff; --accent2:#37d0a6; --warn:#ffb020; --bad:#ff5d6c; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--text); }
+  header { padding:18px 24px; border-bottom:1px solid var(--line); display:flex; gap:12px; align-items:center; }
+  header .logo { width:40px; height:40px; border-radius:12px; display:grid; place-items:center;
+                 background:linear-gradient(135deg,var(--accent),var(--accent2)); font-size:22px; }
+  header h1 { font-size:18px; margin:0; }
+  header p { margin:2px 0 0; color:var(--muted); font-size:13px; }
+  #status { margin-left:auto; font-size:12px; color:var(--muted); }
+  #status .dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--warn); margin-right:6px; }
+  #status.ok .dot { background:var(--accent2); }
+  main { display:grid; grid-template-columns:1fr 320px; gap:16px; padding:16px 24px 32px; max-width:1200px; margin:0 auto; }
+  @media (max-width:900px){ main{ grid-template-columns:1fr; } }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px; }
+  #chat { height:480px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; margin-bottom:12px; }
+  .msg { max-width:82%; padding:10px 14px; border-radius:14px; font-size:14px; line-height:1.55; white-space:pre-wrap; }
+  .msg.bot { background:#1e2a4d; border:1px solid var(--line); align-self:flex-start; border-top-left-radius:4px; }
+  .msg.user { background:var(--accent); align-self:flex-end; border-top-right-radius:4px; }
+  .msg .meta { display:block; margin-top:6px; font-size:11px; color:var(--muted); }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+  .chips button { background:#1e2a4d; color:var(--text); border:1px solid var(--line); border-radius:999px;
+                  padding:7px 13px; font-size:12px; cursor:pointer; }
+  .chips button:hover { border-color:var(--accent); }
+  #form { display:flex; gap:8px; }
+  #form input { flex:1; background:#0e1530; border:1px solid var(--line); border-radius:12px;
+                padding:12px; color:var(--text); font-size:14px; }
+  #form button { background:var(--accent); border:0; color:#fff; border-radius:12px; padding:0 20px;
+                 font-size:14px; cursor:pointer; }
+  h3 { margin:0 0 10px; font-size:14px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+  .side { display:flex; flex-direction:column; gap:16px; }
+  .row { display:flex; gap:8px; margin-bottom:8px; }
+  .row input { flex:1; background:#0e1530; border:1px solid var(--line); border-radius:10px;
+               padding:9px 10px; color:var(--text); font-size:13px; min-width:0; }
+  .row button { background:#24305c; border:1px solid var(--line); color:var(--text);
+                border-radius:10px; padding:0 12px; cursor:pointer; font-size:13px; }
+  pre { background:#0e1530; border:1px solid var(--line); border-radius:10px; padding:10px;
+        font-size:12px; overflow:auto; max-height:220px; margin:8px 0 0; }
+  #stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .stat { background:#0e1530; border:1px solid var(--line); border-radius:10px; padding:10px; text-align:center; }
+  .stat b { display:block; font-size:20px; }
+  .stat span { font-size:11px; color:var(--muted); }
+  footer { text-align:center; color:var(--muted); font-size:12px; padding:0 0 24px; }
+  a { color:var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">✈️</div>
+  <div>
+    <h1>AeroServe — Airline Customer Support</h1>
+    <p>AI triage (intent · sentiment · priority) + live flight &amp; booking lookup + n8n automation</p>
+  </div>
+  <div id="status"><span class="dot"></span><span id="statusText">connecting…</span></div>
+</header>
+
+<main>
+  <section class="card">
+    <div id="chat"></div>
+    <div class="chips">
+      <button data-q="What is the status of flight AI202?">✈️ Flight AI202 status</button>
+      <button data-q="My PNR is ABC123, show my booking">🎫 Booking ABC123</button>
+      <button data-q="My flight was cancelled, I need a refund urgently">💸 Cancelled + refund</button>
+      <button data-q="My baggage is lost, this is terrible">🧳 Lost baggage</button>
+      <button data-q="I want to talk to a human agent">🧑‍💼 Human agent</button>
+    </div>
+    <form id="form">
+      <input id="input" autocomplete="off" placeholder="Ask about flights, bookings, refunds, baggage…" />
+      <button type="submit">Send</button>
+    </form>
+  </section>
+
+  <aside class="side">
+    <div class="card">
+      <h3>Live dashboard</h3>
+      <div id="stats">
+        <div class="stat"><b id="sTotal">–</b><span>tickets</span></div>
+        <div class="stat"><b id="sOpen">–</b><span>open</span></div>
+        <div class="stat"><b id="sUrgent">–</b><span>urgent</span></div>
+        <div class="stat"><b id="sSla">–</b><span>SLA breached</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Booking lookup</h3>
+      <div class="row">
+        <input id="pnr" placeholder="PNR e.g. ABC123" />
+        <button id="pnrBtn">Look up</button>
+      </div>
+      <pre id="pnrOut">Try: ABC123 · XYZ789 · RTY321</pre>
+    </div>
+    <div class="card">
+      <h3>Flight status</h3>
+      <div class="row">
+        <input id="flight" placeholder="Flight e.g. AI202" />
+        <button id="flightBtn">Check</button>
+      </div>
+      <pre id="flightOut">Try: AI202 · 6E234 · AI860</pre>
+    </div>
+    <div class="card">
+      <h3>API</h3>
+      <p style="font-size:13px;color:var(--muted);margin:0">
+        Interactive docs: <a href="/docs" target="_blank">/docs</a><br/>
+        Health: <a href="/api/v1/health" target="_blank">/api/v1/health</a>
+      </p>
+    </div>
+  </aside>
+</main>
+
+<footer>AeroServe demo · FastAPI + LLM triage + n8n · runs fully offline in <b>mock</b> mode</footer>
+
+<script>
+const API = "/api/v1";
+const chat = document.getElementById("chat");
+const form = document.getElementById("form");
+const input = document.getElementById("input");
+
+function bubble(text, who, meta) {
+  const div = document.createElement("div");
+  div.className = "msg " + who;
+  div.innerHTML = text.replace(/</g, "&lt;") + (meta ? `<span class="meta">${meta}</span>` : "");
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+async function send(message) {
+  if (!message.trim()) return;
+  bubble(message, "user");
+  input.value = "";
+  bubble("…", "bot");
+  const typing = chat.lastChild;
+  try {
+    const res = await fetch(API + "/chat", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({message}),
+    });
+    const data = await res.json();
+    typing.remove();
+    const meta = `intent: ${data.intent} (${Math.round(data.confidence * 100)}%) · ${data.sentiment}`
+      + (data.ticket_id ? ` · 🎟️ ticket #${data.ticket_id}` : "");
+    bubble(data.reply, "bot", meta);
+    refreshStats();
+  } catch (e) {
+    typing.remove();
+    bubble("⚠️ Could not reach the API. Is the server running?", "bot");
+  }
+}
+
+form.addEventListener("submit", (e) => { e.preventDefault(); send(input.value); });
+document.querySelectorAll(".chips button").forEach((b) =>
+  b.addEventListener("click", () => send(b.dataset.q)));
+
+async function lookup(url, outEl) {
+  outEl.textContent = "loading…";
+  try {
+    const res = await fetch(url);
+    outEl.textContent = JSON.stringify(await res.json(), null, 2);
+  } catch (e) { outEl.textContent = "⚠️ API unreachable"; }
+}
+document.getElementById("pnrBtn").addEventListener("click", () => {
+  const v = document.getElementById("pnr").value.trim();
+  if (v) lookup(`${API}/bookings/${encodeURIComponent(v)}`, document.getElementById("pnrOut"));
+});
+document.getElementById("flightBtn").addEventListener("click", () => {
+  const v = document.getElementById("flight").value.trim();
+  if (v) lookup(`${API}/flights/${encodeURIComponent(v)}`, document.getElementById("flightOut"));
+});
+
+async function refreshStats() {
+  try {
+    const res = await fetch(API + "/tickets/stats/summary");
+    const s = await res.json();
+    document.getElementById("sTotal").textContent = s.total;
+    document.getElementById("sOpen").textContent = s.open;
+    document.getElementById("sUrgent").textContent = (s.by_priority || {}).urgent || 0;
+    document.getElementById("sSla").textContent = s.sla_breached;
+  } catch (e) { /* ignore */ }
+}
+
+async function checkHealth() {
+  try {
+    const res = await fetch(API + "/health");
+    const h = await res.json();
+    document.getElementById("status").classList.add("ok");
+    document.getElementById("statusText").textContent = `online · ${h.env} · llm:${h.llm_provider}`;
+  } catch (e) {
+    document.getElementById("statusText").textContent = "offline";
+  }
+}
+
+bubble("👋 Welcome to AeroServe! I can check flight status, look up bookings by PNR, explain refunds & baggage rules, or raise a priority ticket for a human agent. Try one of the quick prompts below.", "bot");
+checkHealth();
+refreshStats();
+setInterval(refreshStats, 10000);
+</script>
+</body>
+</html>

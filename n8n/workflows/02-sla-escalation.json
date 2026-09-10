@@ -1,0 +1,62 @@
+{
+  "name": "02 - SLA Breach Escalation",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {"interval": [{"field": "minutes", "minutesInterval": 15}]}
+      },
+      "id": "b1c2d3e4-schedule",
+      "name": "Every 15 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $env.API_BASE_URL }}/tickets",
+        "sendQuery": true,
+        "queryParameters": {"parameters": [{"name": "status", "value": "open"}, {"name": "limit", "value": "200"}]},
+        "options": {"timeout": 8000}
+      },
+      "id": "b1c2d3e4-fetch",
+      "name": "Fetch Open Tickets",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const sla = { urgent: 30, high: 120, normal: 480, low: 1440 };\nconst now = Date.now();\nreturn $input.all().flatMap(i => (Array.isArray(i.json) ? i.json : [i.json]))\n  .filter(t => {\n    const ageMin = (now - new Date(t.created_at).getTime()) / 60000;\n    return ageMin > (sla[t.priority] ?? 480);\n  })\n  .map(t => ({ json: t }));"
+      },
+      "id": "b1c2d3e4-filter",
+      "name": "Filter SLA Breaches",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.API_BASE_URL }}/webhooks/n8n/ticket-event",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ ticket_id: $json.id, action: 'escalate', assignee: 'duty-manager', note: 'SLA breached — auto-escalated by n8n' }) }}",
+        "options": {"timeout": 5000}
+      },
+      "id": "b1c2d3e4-escalate",
+      "name": "Escalate Each",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [900, 300]
+    }
+  ],
+  "connections": {
+    "Every 15 Minutes": {"main": [[{"node": "Fetch Open Tickets", "type": "main", "index": 0}]]},
+    "Fetch Open Tickets": {"main": [[{"node": "Filter SLA Breaches", "type": "main", "index": 0}]]},
+    "Filter SLA Breaches": {"main": [[{"node": "Escalate Each", "type": "main", "index": 0}]]}
+  },
+  "settings": {"executionOrder": "v1"},
+  "staticData": null,
+  "pinData": {}
+}

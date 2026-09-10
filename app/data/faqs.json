@@ -1,0 +1,62 @@
+[
+  {
+    "id": "refund-policy",
+    "category": "refund",
+    "question": "What is the refund policy?",
+    "answer": "Refundable fares are refunded in full to the original payment method within 7-10 business days. Non-refundable fares get airline credit minus a change fee. No-show bookings are not eligible."
+  },
+  {
+    "id": "cancellation-window",
+    "category": "cancellation",
+    "question": "Can I cancel my booking for free?",
+    "answer": "Yes, within 24 hours of booking (if departure is 7+ days away) cancellation is free. After that, fees of $50-$200 apply depending on fare class."
+  },
+  {
+    "id": "baggage-allowance",
+    "category": "baggage",
+    "question": "What is the baggage allowance?",
+    "answer": "Economy includes 1 cabin bag (7kg) + 1 checked bag (23kg). Business includes 2 checked bags (32kg each). Extra bags cost $60-$150 per leg."
+  },
+  {
+    "id": "lost-baggage",
+    "category": "baggage",
+    "question": "My baggage is lost. What should I do?",
+    "answer": "Report it at the arrival baggage desk before leaving the airport to get a Property Irregularity Report (PIR). Track it with your PIR online; compensation applies after 21 days if still missing."
+  },
+  {
+    "id": "flight-delay",
+    "category": "flight_status",
+    "question": "My flight is delayed. What are my rights?",
+    "answer": "For delays over 2 hours you get meals and refreshments; over 5 hours you may rebook or refund. EU261/UK261 compensation of €250-€600 can apply for 3+ hour arrival delays."
+  },
+  {
+    "id": "missed-connection",
+    "category": "booking_change",
+    "question": "I missed my connection. What happens now?",
+    "answer": "If both flights are on one PNR, we rebook you on the next available flight free of charge plus hotel if overnight. Go to the transfer desk or reply here with your PNR."
+  },
+  {
+    "id": "web-checkin",
+    "category": "checkin",
+    "question": "When does web check-in open?",
+    "answer": "Web check-in opens 48 hours before departure and closes 60 minutes before. Boarding passes can be saved to your phone or printed at the kiosk."
+  },
+  {
+    "id": "date-change",
+    "category": "booking_change",
+    "question": "How do I change my travel date?",
+    "answer": "Date changes cost $50-$150 plus any fare difference, except flexible fares which change free. You can request it here with your PNR or in Manage Booking."
+  },
+  {
+    "id": "human-contact",
+    "category": "human_handoff",
+    "question": "How do I talk to a human agent?",
+    "answer": "Ask here for a human agent and we'll raise a priority ticket, or call 24x7 support on 1-800-FLY-HELP. Average callback time is under 15 minutes for urgent issues."
+  },
+  {
+    "id": "unaccompanied-minor",
+    "category": "general",
+    "question": "Can children travel alone?",
+    "answer": "Children aged 5-12 can travel with our Unaccompanied Minor service ($100 per leg) including escorted boarding and handover to a named guardian. Book at least 48 hours ahead."
+  }
+]
